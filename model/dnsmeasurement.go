@@ -2,11 +2,16 @@ package model
 
 import "time"
 
-type Measurement struct {
-	ServerID string
+type DNSMeasurement struct {
+	ID string `gorm:"primaryKey"`
+	IP string
+	Port int
+	Protocol string
+
 	Created   int64 `gorm:"autoCreateTime"`
 	Updated int64 `gorm:"autoUpdateTime"`
-	Protocol string
+
+	CacheWarming bool `gorm:"primaryKey"`
 
 	UDPSocketSetupDuration *time.Duration `json:"udp_socket_setup_duration,omitempty"`
 	TCPHandshakeDuration *time.Duration `json:"tcp_handshake_duration,omitempty"`
@@ -31,4 +36,6 @@ type Measurement struct {
 	ResponseTTL *uint32
 
 	Error *string
+
+	Traceroute []Traceroute
 }

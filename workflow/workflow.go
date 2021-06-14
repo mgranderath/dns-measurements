@@ -1,24 +1,26 @@
 package workflow
 
 import (
-	"github.com/mgranderath/dns-measurements/db"
 	"github.com/miekg/dns"
-	"time"
 )
 
 type workflow struct {
 	Message *dns.Msg
 	IP string
-	RTT *time.Duration
+	Port int
+	Protocol string
 }
 
-func StartForIP(ip string) {
-	rtt, err := getRTT(ip)
-	if err != nil {
-		return
-	}
-	db.CreateServer(ip, rtt)
+func Standard(ip string) {
+	Start(ip, 53, "udp")
+	Start(ip, 53, "tcp")
+	Start(ip, 853, "tls")
+	Start(ip, 443, "https")
+	Start(ip, 784, "quic")
+	Start(ip, 8853, "quic")
+}
 
+func Start(ip string, port int, protocol string) {
 	req := dns.Msg{}
 	req.Id = dns.Id()
 	req.RecursionDesired = true
@@ -28,13 +30,21 @@ func StartForIP(ip string) {
 
 	workfl := &workflow{
 		IP: ip,
-		RTT: rtt,
 		Message: &req,
+		Port: port,
+		Protocol: protocol,
 	}
 
-	workfl.testUDP()
-	workfl.testTCP()
-	workfl.testTLS()
-	workfl.testHTTPS()
-	workfl.testQuic()
+	switch protocol {
+	case "udp":
+		workfl.testUDP()
+	case "tcp":
+		workfl.testTCP()
+	case "tls":
+		workfl.testTLS()
+	case "https":
+		workfl.testHTTPS()
+	case "quic":
+		workfl.testQuic()
+	}
 }

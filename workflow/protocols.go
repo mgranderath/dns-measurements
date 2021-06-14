@@ -2,31 +2,43 @@ package workflow
 
 import (
 	"crypto/tls"
+	"fmt"
 	"github.com/mgranderath/dnsperf/clients"
+	"github.com/rs/xid"
+	"time"
 )
 
+func convertToIpWithPort(w *workflow) string {
+	return fmt.Sprintf("%s:%d", w.IP, w.Port)
+}
+
+const timeout = time.Millisecond * 1500
+
 func (w *workflow) testUDP() {
-	timeout := 50 * *w.RTT
 
 	opts := clients.Options{
 		Timeout: timeout,
 	}
 
-	w.runMeasurementAndRecord("udp", w.IP, opts)
+	id := xid.New()
+
+	w.runMeasurementAndRecord("udp", convertToIpWithPort(w), opts, id, true)
+	w.runMeasurementAndRecord("udp", convertToIpWithPort(w), opts, id, false)
 }
 
 func (w *workflow) testTCP() {
-	timeout := 50 * *w.RTT
 
 	opts := clients.Options{
 		Timeout: timeout,
 	}
 
-	w.runMeasurementAndRecord("tcp", w.IP, opts)
+	id := xid.New()
+
+	w.runMeasurementAndRecord("tcp", convertToIpWithPort(w), opts, id, true)
+	w.runMeasurementAndRecord("tcp", convertToIpWithPort(w), opts, id, false)
 }
 
 func (w *workflow) testTLS() {
-	timeout := 50 * *w.RTT
 
 	opts := clients.Options{
 		Timeout: timeout,
@@ -38,11 +50,13 @@ func (w *workflow) testTLS() {
 		},
 	}
 
-	w.runMeasurementAndRecord("tls", w.IP, opts)
+	id := xid.New()
+
+	w.runMeasurementAndRecord("tls", convertToIpWithPort(w), opts, id, true)
+	w.runMeasurementAndRecord("tls", convertToIpWithPort(w), opts, id, false)
 }
 
 func (w *workflow) testHTTPS() {
-	timeout := 50 * *w.RTT
 
 	opts := clients.Options{
 		Timeout: timeout,
@@ -54,11 +68,13 @@ func (w *workflow) testHTTPS() {
 		},
 	}
 
-	w.runMeasurementAndRecord("https", w.IP + "/dns-query", opts)
+	id := xid.New()
+
+	w.runMeasurementAndRecord("https", convertToIpWithPort(w) + "/dns-query", opts, id, true)
+	w.runMeasurementAndRecord("https", convertToIpWithPort(w) + "/dns-query", opts, id, false)
 }
 
 func (w *workflow) testQuic() {
-	timeout := 50 * *w.RTT
 
 	opts := clients.Options{
 		Timeout: timeout,
@@ -73,5 +89,8 @@ func (w *workflow) testQuic() {
 		},
 	}
 
-	w.runMeasurementAndRecord("quic", w.IP, opts)
+	id := xid.New()
+
+	w.runMeasurementAndRecord("quic", convertToIpWithPort(w), opts, id, true)
+	w.runMeasurementAndRecord("quic", convertToIpWithPort(w), opts, id, false)
 }

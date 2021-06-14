@@ -6,10 +6,11 @@ import (
 	"github.com/mgranderath/dnsperf/clients"
 	"github.com/mgranderath/dnsperf/metrics"
 	"github.com/miekg/dns"
+	"github.com/rs/xid"
 	"log"
 )
 
-func (w *workflow) convertToMeasurement(protocol string, result *metrics.Result, response *dns.Msg, err error) model.Measurement {
+func (w *workflow) convertToMeasurement(id string, protocol string, result *metrics.Result, response *dns.Msg, cacheWarming bool, err error) model.DNSMeasurement {
 	var responseIP *string
 	var responseTTL *uint32
 	var rCode *int
@@ -33,8 +34,11 @@ func (w *workflow) convertToMeasurement(protocol string, result *metrics.Result,
 		errorString = &errStr
 	}
 
-	return model.Measurement{
-		ServerID:               w.IP,
+	return model.DNSMeasurement{
+		ID: id,
+		IP:               w.IP,
+		Port: w.Port,
+		CacheWarming: cacheWarming,
 		UDPSocketSetupDuration: result.UDPSocketSetupDuration,
 		TCPHandshakeDuration:   result.TCPHandshakeDuration,
 		TLSHandshakeDuration:   result.TLSHandshakeDuration,
@@ -55,7 +59,7 @@ func (w *workflow) convertToMeasurement(protocol string, result *metrics.Result,
 	}
 }
 
-func (w *workflow) runMeasurementAndRecord(protocol string, address string, options clients.Options) {
+func (w *workflow) runMeasurementAndRecord(protocol string, address string, options clients.Options, id xid.ID, cacheWarming bool) {
 	u, err := clients.AddressToClient(protocol+"://"+address, options)
 	if err != nil {
 		log.Fatalf("Cannot create an upstream: %s", err)
@@ -63,11 +67,12 @@ func (w *workflow) runMeasurementAndRecord(protocol string, address string, opti
 
 	reply := u.Exchange(w.Message)
 
-	db.AddMeasurement(w.convertToMeasurement(protocol, reply.GetMetrics(), reply.GetResponse(), reply.GetError()))
+	db.AddMeasurement(w.convertToMeasurement(id.String(), protocol, reply.GetMetrics(), reply.GetResponse(), cacheWarming, reply.GetError()))
 
 	if reply.GetError() != nil {
-		log.Printf("%s://%s measurement error: %s", protocol, w.IP, reply.GetError().Error())
+		log.Printf("ERROR: %s://%s:%d - %s", protocol, w.IP, w.Port, reply.GetError().Error())
 	} else {
-		log.Printf("%s://%s measurement successfull", protocol, w.IP)
+		log.Printf("SUCCESS: %s://%s:%d", protocol, w.IP, w.Port)
+		w.tracert(id.String())
 	}
 }
