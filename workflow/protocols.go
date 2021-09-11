@@ -84,9 +84,7 @@ func (w *workflow) testQuic() {
 			InsecureSkipVerify: true,
 			SkipCommonName:     true,
 		},
-		QuicOptions: &clients.QuicOptions{
-			AllowedVersions: []string{clients.VersionQuic00, clients.VersionQuic01, clients.VersionQuic02},
-		},
+		QuicOptions: &clients.QuicOptions{},
 	}
 
 	id := xid.New()
