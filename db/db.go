@@ -1,6 +1,7 @@
 package db
 
 import (
+	"encoding/json"
 	"github.com/mgranderath/dns-measurements/model"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -27,6 +28,10 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	err = db.AutoMigrate(&model.QLogOutput{})
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func AddMeasurement(measurement model.DNSMeasurement) {
@@ -35,6 +40,15 @@ func AddMeasurement(measurement model.DNSMeasurement) {
 
 func AddTraceroute(traceroute model.Traceroute) {
 	db.Create(&traceroute)
+}
+
+func AddQLogOutput(id string, output []map[string]interface{}) {
+	marshaled, err := json.Marshal(output)
+	if err != nil {
+		log.Fatal(err)
+	}
+	temp := &model.QLogOutput{DNSMeasurementID: id, Content: string(marshaled[:])}
+	db.Create(temp)
 }
 
 func Close() {

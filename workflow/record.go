@@ -68,6 +68,9 @@ func (w *workflow) runMeasurementAndRecord(protocol string, address string, opti
 	reply := u.Exchange(w.Message)
 
 	db.AddMeasurement(w.convertToMeasurement(id.String(), protocol, reply.GetMetrics(), reply.GetResponse(), cacheWarming, reply.GetError()))
+	if reply.GetMetrics() != nil && reply.GetMetrics().QLogMessages != nil && !cacheWarming {
+		db.AddQLogOutput(id.String(), reply.GetMetrics().QLogMessages)
+	}
 
 	if reply.GetError() != nil {
 		log.Printf("ERROR: %s://%s:%d - %s", protocol, w.IP, w.Port, reply.GetError().Error())

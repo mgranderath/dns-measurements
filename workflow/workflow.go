@@ -18,6 +18,7 @@ func Standard(ip string) {
 	Start(ip, 443, "https")
 	Start(ip, 784, "quic")
 	Start(ip, 8853, "quic")
+	Start(ip, 853, "quic")
 }
 
 func Start(ip string, port int, protocol string) {
