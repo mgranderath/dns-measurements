@@ -8,6 +8,7 @@ import (
 	"github.com/miekg/dns"
 	"github.com/rs/xid"
 	"log"
+	"time"
 )
 
 func (w *workflow) convertToMeasurement(id string, protocol string, result *metrics.Result, response *dns.Msg, cacheWarming bool, err error) model.DNSMeasurement {
@@ -75,7 +76,18 @@ func (w *workflow) runMeasurementAndRecord(protocol string, address string, opti
 	if reply.GetError() != nil {
 		log.Printf("ERROR: %s://%s:%d - %s", protocol, w.IP, w.Port, reply.GetError().Error())
 	} else {
-		log.Printf("SUCCESS: %s://%s:%d", protocol, w.IP, w.Port)
-		w.tracert(id.String())
+		log.Printf("SUCCESS: %s://%s:%d ", protocol, w.IP, w.Port)
+		ttlChan := make(chan struct{}, 1)
+		go func() {
+			w.tracert(id.String())
+			close(ttlChan)
+		}()
+
+		select {
+		case <- ttlChan:
+			break
+		case <-time.After(options.Timeout):
+			log.Printf("Traceroute timeout for %s://%s:%d", protocol, w.IP, w.Port)
+		}
 	}
 }
