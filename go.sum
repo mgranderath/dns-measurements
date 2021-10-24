@@ -102,8 +102,8 @@ github.com/mattn/go-sqlite3 v1.14.5/go.mod h1:WVKg1VTActs4Qso6iwGbiFih2UIHo0ENGw
 github.com/mattn/go-sqlite3 v1.14.6 h1:dNPt6NO46WmLVt2DLNpwczCmdV5boIZ6g/tlDrlRUbg=
 github.com/mattn/go-sqlite3 v1.14.6/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
-github.com/mgranderath/dnsperf v0.0.2 h1:h/5yHcTTcayXA/AcMqwn6qqkqBKTNhTtMNLWYVQcq/w=
-github.com/mgranderath/dnsperf v0.0.2/go.mod h1:0LLt5or9hi1trwpbNKAZXKtdFr123vBI0JZTdFWyi7c=
+github.com/mgranderath/dnsperf v0.0.3 h1:2r1Hgw+eJY7TeKqJ9uaKqo9NhBWUQTEJFqxIQsdRFUc=
+github.com/mgranderath/dnsperf v0.0.3/go.mod h1:0LLt5or9hi1trwpbNKAZXKtdFr123vBI0JZTdFWyi7c=
 github.com/mgranderath/traceroute v0.0.0-20210421123016-9de04a371a01 h1:MtBm04NDOQJd4XRLRI502MZJKLO4xKjfuMN7AYSnP/E=
 github.com/mgranderath/traceroute v0.0.0-20210421123016-9de04a371a01/go.mod h1:wX6nHtSvUpuxaQo6Lqb/lhY1jOlpE3vfoQ0Isr/bvE8=
 github.com/microcosm-cc/bluemonday v1.0.1/go.mod h1:hsXNsILzKxV+sX77C5b8FSuKF00vh2OMYv+xgHpAMF4=
