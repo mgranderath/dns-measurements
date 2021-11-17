@@ -3,7 +3,7 @@ package workflow
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/mgranderath/dnsperf/clients"
+	"github.com/Lucapaulo/dnsperf/clients"
 	"github.com/rs/xid"
 	"time"
 )

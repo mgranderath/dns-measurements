@@ -3,8 +3,8 @@ package workflow
 import (
 	"github.com/mgranderath/dns-measurements/db"
 	"github.com/mgranderath/dns-measurements/model"
-	"github.com/mgranderath/dnsperf/clients"
-	"github.com/mgranderath/dnsperf/metrics"
+	"github.com/Lucapaulo/dnsperf/clients"
+	"github.com/Lucapaulo/dnsperf/metrics"
 	"github.com/miekg/dns"
 	"github.com/rs/xid"
 	"log"
