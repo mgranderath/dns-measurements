@@ -3,7 +3,7 @@ module github.com/mgranderath/dns-measurements
 go 1.16
 
 require (
-	github.com/Lucapaulo/dnsperf v0.0.5
+	github.com/Lucapaulo/dnsperf v0.0.6
 	github.com/go-ping/ping v0.0.0-20210312085107-d90f3778a8a3
 	github.com/jinzhu/now v1.1.2 // indirect
 	github.com/mattn/go-sqlite3 v1.14.6 // indirect
