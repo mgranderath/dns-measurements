@@ -6,6 +6,8 @@ import (
 	"github.com/Lucapaulo/dnsperf/clients"
 	"github.com/lucas-clemente/quic-go"
 	"github.com/rs/xid"
+	"net"
+	"strconv"
 	"time"
 )
 
@@ -77,16 +79,23 @@ func (w *workflow) testHTTPS() {
 
 func (w *workflow) testQuic() {
 	tokenStore := quic.NewLRUTokenStore(5, 50)
+	udpConn, _ := net.ListenUDP("udp", &net.UDPAddr{IP: net.IPv4zero, Port: 0})
+	_, portString, _ := net.SplitHostPort(udpConn.LocalAddr().String())
+	udpConn.Close()
+	port, _ := strconv.Atoi(portString)
 
 	opts := clients.Options{
 		Timeout: timeout,
 		TLSOptions: &clients.TLSOptions{
 			MinVersion:         tls.VersionTLS10,
 			MaxVersion:         tls.VersionTLS13,
+			InsecureSkipVerify: true,
+			SkipCommonName:     true,
 		},
 		QuicOptions: &clients.QuicOptions{
 			TokenStore: tokenStore,
 			QuicVersions: []quic.VersionNumber{quic.VersionDraft34, quic.VersionDraft32, quic.VersionDraft29, quic.Version1},
+			LocalPort: port,
 		},
 	}
 
