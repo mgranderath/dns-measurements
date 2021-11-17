@@ -1,10 +1,10 @@
 package workflow
 
 import (
-	"github.com/mgranderath/dns-measurements/db"
-	"github.com/mgranderath/dns-measurements/model"
 	"github.com/Lucapaulo/dnsperf/clients"
 	"github.com/Lucapaulo/dnsperf/metrics"
+	"github.com/mgranderath/dns-measurements/db"
+	"github.com/mgranderath/dns-measurements/model"
 	"github.com/miekg/dns"
 	"github.com/rs/xid"
 	"log"
@@ -60,7 +60,7 @@ func (w *workflow) convertToMeasurement(id string, protocol string, result *metr
 	}
 }
 
-func (w *workflow) runMeasurementAndRecord(protocol string, address string, options clients.Options, id xid.ID, cacheWarming bool) {
+func (w *workflow) runMeasurementAndRecord(protocol string, address string, options clients.Options, id xid.ID, cacheWarming bool) uint64 {
 	u, err := clients.AddressToClient(protocol+"://"+address, options)
 	if err != nil {
 		log.Fatalf("Cannot create an upstream: %s", err)
@@ -73,8 +73,14 @@ func (w *workflow) runMeasurementAndRecord(protocol string, address string, opti
 		db.AddQLogOutput(id.String(), reply.GetMetrics().QLogMessages)
 	}
 
+	quicVersion := uint64(0)
+	if protocol == "quic" && reply.GetMetrics() != nil && reply.GetError() == nil {
+		quicVersion = *reply.GetMetrics().QUICVersion
+	}
+
 	if reply.GetError() != nil {
 		log.Printf("ERROR: %s://%s:%d - %s", protocol, w.IP, w.Port, reply.GetError().Error())
+
 	} else {
 		log.Printf("SUCCESS: %s://%s:%d ", protocol, w.IP, w.Port)
 		ttlChan := make(chan struct{}, 1)
@@ -85,9 +91,15 @@ func (w *workflow) runMeasurementAndRecord(protocol string, address string, opti
 
 		select {
 		case <- ttlChan:
-			break
+			return quicVersion
 		case <-time.After(options.Timeout):
 			log.Printf("Traceroute timeout for %s://%s:%d", protocol, w.IP, w.Port)
+			return quicVersion
 		}
 	}
+
+	return quicVersion
+
+
+
 }

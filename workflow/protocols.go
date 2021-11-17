@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"github.com/Lucapaulo/dnsperf/clients"
+	"github.com/lucas-clemente/quic-go"
 	"github.com/rs/xid"
 	"time"
 )
@@ -75,20 +76,25 @@ func (w *workflow) testHTTPS() {
 }
 
 func (w *workflow) testQuic() {
+	tokenStore := quic.NewLRUTokenStore(5, 50)
 
 	opts := clients.Options{
 		Timeout: timeout,
 		TLSOptions: &clients.TLSOptions{
 			MinVersion:         tls.VersionTLS10,
 			MaxVersion:         tls.VersionTLS13,
-			InsecureSkipVerify: true,
-			SkipCommonName:     true,
 		},
-		QuicOptions: &clients.QuicOptions{},
+		QuicOptions: &clients.QuicOptions{
+			TokenStore: tokenStore,
+			QuicVersions: []quic.VersionNumber{quic.VersionDraft34, quic.VersionDraft32, quic.VersionDraft29, quic.Version1},
+		},
 	}
 
 	id := xid.New()
 
-	w.runMeasurementAndRecord("quic", convertToIpWithPort(w), opts, id, true)
+	quicVersion := w.runMeasurementAndRecord("quic", convertToIpWithPort(w), opts, id, true)
+	if quicVersion != uint64(0) {
+		opts.QuicOptions.QuicVersions = []quic.VersionNumber{quic.VersionNumber(uint32(quicVersion))}
+	}
 	w.runMeasurementAndRecord("quic", convertToIpWithPort(w), opts, id, false)
 }
