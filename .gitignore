@@ -4,5 +4,4 @@
 *.db-wal
 
 *.exe
-main
 dns-measurements
