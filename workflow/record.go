@@ -1,10 +1,10 @@
 package workflow
 
 import (
-	"github.com/Lucapaulo/dnsperf/clients"
-	"github.com/Lucapaulo/dnsperf/metrics"
 	"github.com/mgranderath/dns-measurements/db"
 	"github.com/mgranderath/dns-measurements/model"
+	"github.com/mgranderath/dnsperf/clients"
+	"github.com/mgranderath/dnsperf/metrics"
 	"github.com/miekg/dns"
 	"github.com/rs/xid"
 	"log"
@@ -36,10 +36,10 @@ func (w *workflow) convertToMeasurement(id string, protocol string, result *metr
 	}
 
 	return model.DNSMeasurement{
-		ID: id,
-		IP:               w.IP,
-		Port: w.Port,
-		CacheWarming: cacheWarming,
+		ID:                     id,
+		IP:                     w.IP,
+		Port:                   w.Port,
+		CacheWarming:           cacheWarming,
 		UDPSocketSetupDuration: result.UDPSocketSetupDuration,
 		TCPHandshakeDuration:   result.TCPHandshakeDuration,
 		TLSHandshakeDuration:   result.TLSHandshakeDuration,
@@ -52,11 +52,11 @@ func (w *workflow) convertToMeasurement(id string, protocol string, result *metr
 		HTTPVersion:            result.HTTPVersion,
 		QueryTime:              result.QueryTime,
 		TotalTime:              result.TotalTime,
-		RCode: rCode,
-		ResponseIP: responseIP,
-		ResponseTTL: responseTTL,
-		Protocol: protocol,
-		Error: errorString,
+		RCode:                  rCode,
+		ResponseIP:             responseIP,
+		ResponseTTL:            responseTTL,
+		Protocol:               protocol,
+		Error:                  errorString,
 	}
 }
 
@@ -90,16 +90,12 @@ func (w *workflow) runMeasurementAndRecord(protocol string, address string, opti
 		}()
 
 		select {
-		case <- ttlChan:
+		case <-ttlChan:
 			return quicVersion
 		case <-time.After(options.Timeout):
 			log.Printf("Traceroute timeout for %s://%s:%d", protocol, w.IP, w.Port)
 			return quicVersion
 		}
 	}
-
 	return quicVersion
-
-
-
 }

@@ -2,6 +2,6 @@
 *.db
 *.db-shm
 *.db-wal
-
+main
 *.exe
 dns-measurements

@@ -3,8 +3,8 @@ package workflow
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/Lucapaulo/dnsperf/clients"
 	"github.com/lucas-clemente/quic-go"
+	"github.com/mgranderath/dnsperf/clients"
 	"github.com/rs/xid"
 	"net"
 	"strconv"
@@ -73,8 +73,8 @@ func (w *workflow) testHTTPS() {
 
 	id := xid.New()
 
-	w.runMeasurementAndRecord("https", convertToIpWithPort(w) + "/dns-query", opts, id, true)
-	w.runMeasurementAndRecord("https", convertToIpWithPort(w) + "/dns-query", opts, id, false)
+	w.runMeasurementAndRecord("https", convertToIpWithPort(w)+"/dns-query", opts, id, true)
+	w.runMeasurementAndRecord("https", convertToIpWithPort(w)+"/dns-query", opts, id, false)
 }
 
 func (w *workflow) testQuic() {
@@ -93,9 +93,9 @@ func (w *workflow) testQuic() {
 			SkipCommonName:     true,
 		},
 		QuicOptions: &clients.QuicOptions{
-			TokenStore: tokenStore,
+			TokenStore:   tokenStore,
 			QuicVersions: []quic.VersionNumber{quic.VersionDraft34, quic.VersionDraft32, quic.VersionDraft29, quic.Version1},
-			LocalPort: port,
+			LocalPort:    port,
 		},
 	}
 
