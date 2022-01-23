@@ -3,8 +3,11 @@ package workflow
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/lucas-clemente/quic-go"
 	"github.com/mgranderath/dnsperf/clients"
 	"github.com/rs/xid"
+	"net"
+	"strconv"
 	"time"
 )
 
@@ -70,11 +73,16 @@ func (w *workflow) testHTTPS() {
 
 	id := xid.New()
 
-	w.runMeasurementAndRecord("https", convertToIpWithPort(w) + "/dns-query", opts, id, true)
-	w.runMeasurementAndRecord("https", convertToIpWithPort(w) + "/dns-query", opts, id, false)
+	w.runMeasurementAndRecord("https", convertToIpWithPort(w)+"/dns-query", opts, id, true)
+	w.runMeasurementAndRecord("https", convertToIpWithPort(w)+"/dns-query", opts, id, false)
 }
 
 func (w *workflow) testQuic() {
+	tokenStore := quic.NewLRUTokenStore(5, 50)
+	udpConn, _ := net.ListenUDP("udp", &net.UDPAddr{IP: net.IPv4zero, Port: 0})
+	_, portString, _ := net.SplitHostPort(udpConn.LocalAddr().String())
+	udpConn.Close()
+	port, _ := strconv.Atoi(portString)
 
 	opts := clients.Options{
 		Timeout: timeout,
@@ -84,11 +92,18 @@ func (w *workflow) testQuic() {
 			InsecureSkipVerify: true,
 			SkipCommonName:     true,
 		},
-		QuicOptions: &clients.QuicOptions{},
+		QuicOptions: &clients.QuicOptions{
+			TokenStore:   tokenStore,
+			QuicVersions: []quic.VersionNumber{quic.VersionDraft34, quic.VersionDraft32, quic.VersionDraft29, quic.Version1},
+			LocalPort:    port,
+		},
 	}
 
 	id := xid.New()
 
-	w.runMeasurementAndRecord("quic", convertToIpWithPort(w), opts, id, true)
+	quicVersion := w.runMeasurementAndRecord("quic", convertToIpWithPort(w), opts, id, true)
+	if quicVersion != uint64(0) {
+		opts.QuicOptions.QuicVersions = []quic.VersionNumber{quic.VersionNumber(uint32(quicVersion))}
+	}
 	w.runMeasurementAndRecord("quic", convertToIpWithPort(w), opts, id, false)
 }

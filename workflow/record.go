@@ -36,10 +36,10 @@ func (w *workflow) convertToMeasurement(id string, protocol string, result *metr
 	}
 
 	return model.DNSMeasurement{
-		ID: id,
-		IP:               w.IP,
-		Port: w.Port,
-		CacheWarming: cacheWarming,
+		ID:                     id,
+		IP:                     w.IP,
+		Port:                   w.Port,
+		CacheWarming:           cacheWarming,
 		UDPSocketSetupDuration: result.UDPSocketSetupDuration,
 		TCPHandshakeDuration:   result.TCPHandshakeDuration,
 		TLSHandshakeDuration:   result.TLSHandshakeDuration,
@@ -52,15 +52,15 @@ func (w *workflow) convertToMeasurement(id string, protocol string, result *metr
 		HTTPVersion:            result.HTTPVersion,
 		QueryTime:              result.QueryTime,
 		TotalTime:              result.TotalTime,
-		RCode: rCode,
-		ResponseIP: responseIP,
-		ResponseTTL: responseTTL,
-		Protocol: protocol,
-		Error: errorString,
+		RCode:                  rCode,
+		ResponseIP:             responseIP,
+		ResponseTTL:            responseTTL,
+		Protocol:               protocol,
+		Error:                  errorString,
 	}
 }
 
-func (w *workflow) runMeasurementAndRecord(protocol string, address string, options clients.Options, id xid.ID, cacheWarming bool) {
+func (w *workflow) runMeasurementAndRecord(protocol string, address string, options clients.Options, id xid.ID, cacheWarming bool) uint64 {
 	u, err := clients.AddressToClient(protocol+"://"+address, options)
 	if err != nil {
 		log.Fatalf("Cannot create an upstream: %s", err)
@@ -73,8 +73,14 @@ func (w *workflow) runMeasurementAndRecord(protocol string, address string, opti
 		db.AddQLogOutput(id.String(), reply.GetMetrics().QLogMessages)
 	}
 
+	quicVersion := uint64(0)
+	if protocol == "quic" && reply.GetMetrics() != nil && reply.GetError() == nil {
+		quicVersion = *reply.GetMetrics().QUICVersion
+	}
+
 	if reply.GetError() != nil {
 		log.Printf("ERROR: %s://%s:%d - %s", protocol, w.IP, w.Port, reply.GetError().Error())
+
 	} else {
 		log.Printf("SUCCESS: %s://%s:%d ", protocol, w.IP, w.Port)
 		ttlChan := make(chan struct{}, 1)
@@ -84,10 +90,12 @@ func (w *workflow) runMeasurementAndRecord(protocol string, address string, opti
 		}()
 
 		select {
-		case <- ttlChan:
-			break
+		case <-ttlChan:
+			return quicVersion
 		case <-time.After(options.Timeout):
 			log.Printf("Traceroute timeout for %s://%s:%d", protocol, w.IP, w.Port)
+			return quicVersion
 		}
 	}
+	return quicVersion
 }
