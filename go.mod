@@ -4,8 +4,10 @@ go 1.16
 
 replace github.com/lucas-clemente/quic-go => ./replacement_modules/quic-go
 
+replace github.com/mgranderath/dnsperf v0.0.4 => github.com/42SK/dnsperf v0.0.4
+
 require (
-	github.com/mgranderath/dnsperf v0.0.3
+	github.com/mgranderath/dnsperf v0.0.4
 	github.com/go-ping/ping v0.0.0-20210312085107-d90f3778a8a3
 	github.com/jinzhu/now v1.1.2 // indirect
 	github.com/lucas-clemente/quic-go v0.21.2

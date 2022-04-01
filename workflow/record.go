@@ -48,6 +48,7 @@ func (w *workflow) convertToMeasurement(id string, protocol string, result *metr
 		QUICHandshakeDuration:  result.QUICHandshakeDuration,
 		QUICVersion:            result.QUICVersion,
 		QUICNegotiatedProtocol: result.QUICNegotiatedProtocol,
+		QUICUsed0RTT:		result.QUICUsed0RTT,
 		QUICError:              result.QUICError,
 		HTTPVersion:            result.HTTPVersion,
 		QueryTime:              result.QueryTime,

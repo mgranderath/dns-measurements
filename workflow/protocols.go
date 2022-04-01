@@ -79,6 +79,7 @@ func (w *workflow) testHTTPS() {
 
 func (w *workflow) testQuic() {
 	tokenStore := quic.NewLRUTokenStore(5, 50)
+	clientSessionCache := tls.NewLRUClientSessionCache(100)
 	udpConn, _ := net.ListenUDP("udp", &net.UDPAddr{IP: net.IPv4zero, Port: 0})
 	_, portString, _ := net.SplitHostPort(udpConn.LocalAddr().String())
 	udpConn.Close()
@@ -89,6 +90,7 @@ func (w *workflow) testQuic() {
 		TLSOptions: &clients.TLSOptions{
 			MinVersion:         tls.VersionTLS10,
 			MaxVersion:         tls.VersionTLS13,
+			ClientSessionCache: clientSessionCache,
 			InsecureSkipVerify: true,
 			SkipCommonName:     true,
 		},
