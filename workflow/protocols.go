@@ -42,12 +42,13 @@ func (w *workflow) testTCP() {
 }
 
 func (w *workflow) testTLS() {
-
+	clientSessionCache := tls.NewLRUClientSessionCache(100)
 	opts := clients.Options{
 		Timeout: timeout,
 		TLSOptions: &clients.TLSOptions{
 			MinVersion:         tls.VersionTLS10,
 			MaxVersion:         tls.VersionTLS13,
+			ClientSessionCache: clientSessionCache,
 			InsecureSkipVerify: true,
 			SkipCommonName:     true,
 		},
@@ -60,12 +61,13 @@ func (w *workflow) testTLS() {
 }
 
 func (w *workflow) testHTTPS() {
-
+	clientSessionCache := tls.NewLRUClientSessionCache(100)
 	opts := clients.Options{
 		Timeout: timeout,
 		TLSOptions: &clients.TLSOptions{
 			MinVersion:         tls.VersionTLS10,
 			MaxVersion:         tls.VersionTLS13,
+			ClientSessionCache: clientSessionCache,
 			InsecureSkipVerify: true,
 			SkipCommonName:     true,
 		},
