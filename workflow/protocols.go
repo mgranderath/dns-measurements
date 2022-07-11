@@ -98,7 +98,7 @@ func (w *workflow) testQuic() {
 		},
 		QuicOptions: &clients.QuicOptions{
 			TokenStore:   tokenStore,
-			QuicVersions: []quic.VersionNumber{quic.Version1, quic.VersionDraft29},
+			QuicVersions: []quic.VersionNumber{quic.Version2, quic.Version1, quic.VersionDraft29},
 			LocalPort:    port,
 		},
 	}
