@@ -23,6 +23,7 @@ type DNSMeasurement struct {
 	QUICHandshakeDuration  *time.Duration `json:"quic_handshake_duration,omitempty"`
 	QUICVersion            *uint64        `json:"quic_version,omitempty"`
 	QUICNegotiatedProtocol *string        `json:"quic_negotiated_protocol,omitempty"`
+	QUICUsed0RTT 		bool 	      `json:"quic_used0RTT"`
 	QUICError              *uint64        `json:"quic_error,omitempty"`
 
 	HTTPVersion *string `json:"http_version,omitempty"`
